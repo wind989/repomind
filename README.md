@@ -16,7 +16,7 @@ RepoMind 是面向后端项目文档的知识库服务。它将分散的 README�
 
 已完成一次固定公开语料的真实检索评测：7 份 MIT 许可的 FastAPI 模板文档、210 个索引片段、15 条人工标注问题，Top-1 命中 11/15（73.3%）、候选召回命中 15/15（100%）。完整来源、方法与限制见 [评测报告](docs/evaluation_report.md)；这不是生产数据或通用能力结论。
 
-当前版本已完成 P0–P4 的文档处理、混合检索和问答闭环；P5 正在补齐工程化能力。项目的功能边界、技术选择和简历表述均以实际运行与测试证据为准。
+当前版本已完成 P0–P5：文档处理、混合检索、问答闭环、JWT 认证与工程化交付。项目的功能边界、技术选择和简历表述均以实际运行与测试证据为准。
 
 详细图示见 [架构与数据流](docs/architecture.md)。
 
@@ -107,21 +107,21 @@ FastAPI、Pydantic、SQLAlchemy 2、Alembic、MySQL 8、Chroma 本地持久化�
 
 ## Docker 与 CI
 
-容器环境使用 MySQL 8 和应用两个服务。先复制并填写容器环境变量，注意 `MYSQL_PASSWORD` 与 `DATABASE_URL` 中的密码必须一致，且后者需要 URL 编码：
+容器环境使用 MySQL 8 和应用两个服务。首次运行可由脚本从本地 `.env` 读取模型连接配置，并为容器数据库、JWT 与管理员生成独立随机凭据；生成的 `.env.docker` 始终只保留在本机：
 
 ```powershell
-Copy-Item .env.docker.example .env.docker
-docker compose --env-file .env.docker config
-docker compose --env-file .env.docker up --build
+python scripts/create_docker_env.py
+docker compose --env-file .env.docker config --quiet
+docker compose --env-file .env.docker up --build -d
 ```
 
-Compose 会在应用启动前等待 MySQL 健康检查，应用容器启动时执行 `alembic upgrade head`，并将 MySQL 数据和 Chroma/上传文件分别写入命名卷。`Dockerfile`、`compose.yaml`、`.dockerignore` 和 GitHub Actions 测试工作流已提供；CI 只运行隔离测试与 fake 依赖，不需要真实 DeepSeek 密钥或外网模型下载。
+如需手动配置，可以 `.env.docker.example` 为模板；`MYSQL_PASSWORD` 与 `DATABASE_URL` 中的密码必须一致，且后者需要 URL 编码。Compose 会在应用启动前等待 MySQL 健康检查，应用容器启动时执行 `alembic upgrade head`，并将 MySQL 数据和 Chroma/上传文件分别写入命名卷。`Dockerfile`、`compose.yaml`、`.dockerignore` 和 GitHub Actions 测试工作流已提供；CI 只运行隔离测试与 fake 依赖，不需要真实 DeepSeek 密钥或外网模型下载。
 
 ## 验证状态与限制
 
-- 已在本机通过：P5 新增代码的隔离 pytest 测试（17 项，通过 fake 依赖）。
-- Docker：已提供配置并完成 YAML 语法解析；本机未安装 Docker CLI，因此尚未进行 `docker compose config` 或实际容器启动验证。
-- GitHub Actions：工作流文件已提供；尚未在远程 CI 平台运行验证。
-- 当前是单用户、本地或受信任演示部署。认证方案尚未确定；未实现登录、多用户访问控制、JWT 或 API Key 鉴权。
+- 已在本机通过：18 项隔离 pytest 测试（通过 fake 依赖）。
+- Docker：`docker compose config --quiet` 已通过；MySQL 与应用容器已实际启动且为 healthy，`/health`、`/ready`、JWT 登录及受保护接口均已验证。
+- GitHub Actions：首次远程工作流已成功运行，执行隔离测试与依赖检查。
+- 当前为本地/受信任演示部署，使用 JWT 保护业务接口，并由本地 bootstrap 管理员初始化。尚未实现注册、用户管理、多用户角色或细粒度权限控制。
 - 不包含 Agent、Redis、前端、神经重排序模型或 APISentinel 集成。
 - DeepSeek 密钥只应保存在本地环境文件；不要粘贴到聊天、日志、截图或仓库。
