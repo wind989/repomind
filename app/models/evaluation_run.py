@@ -1,0 +1,38 @@
+from datetime import datetime
+from typing import TYPE_CHECKING
+
+from sqlalchemy import DateTime, ForeignKey, Integer, String, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.evaluation_case_result import EvaluationCaseResult
+    from app.models.knowledge_base import KnowledgeBase
+
+
+class EvaluationRun(Base):
+    __tablename__ = "evaluation_runs"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    knowledge_base_id: Mapped[int] = mapped_column(
+        ForeignKey("knowledge_bases.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    dataset_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    total_cases: Mapped[int] = mapped_column(Integer, nullable=False)
+    top1_hit_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    recall_hit_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    average_keyword_latency_ms: Mapped[int] = mapped_column(Integer, nullable=False)
+    average_vector_latency_ms: Mapped[int] = mapped_column(Integer, nullable=False)
+    average_fusion_latency_ms: Mapped[int] = mapped_column(Integer, nullable=False)
+    average_rerank_latency_ms: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
+
+    knowledge_base: Mapped["KnowledgeBase"] = relationship(back_populates="evaluation_runs")
+    results: Mapped[list["EvaluationCaseResult"]] = relationship(
+        back_populates="evaluation_run",
+        cascade="all, delete-orphan",
+        order_by="EvaluationCaseResult.id",
+    )

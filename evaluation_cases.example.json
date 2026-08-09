@@ -1,0 +1,12 @@
+{
+  "dataset_name": "请替换为你的知识库题集名称",
+  "recall_k": 8,
+  "cases": [
+    {
+      "case_key": "order-create-parameters",
+      "knowledge_base_id": 1,
+      "question": "创建订单需要什么参数？",
+      "expected_document_title": "订单服务接口说明"
+    }
+  ]
+}
