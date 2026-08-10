@@ -1,6 +1,6 @@
-from datetime import datetime
-
 from pydantic import BaseModel, ConfigDict
+
+from app.schemas.timezone import BeijingDateTime
 
 
 class EvaluationCaseResultRead(BaseModel):
@@ -30,5 +30,5 @@ class EvaluationRunRead(BaseModel):
     average_vector_latency_ms: int
     average_fusion_latency_ms: int
     average_rerank_latency_ms: int
-    created_at: datetime
+    created_at: BeijingDateTime
     results: list[EvaluationCaseResultRead]

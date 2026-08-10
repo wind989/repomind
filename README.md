@@ -105,6 +105,15 @@ FastAPI、Pydantic、SQLAlchemy 2、Alembic、MySQL 8、Chroma 本地持久化�
 
 评测只运行检索与重排序，不调用 DeepSeek，不产生模型调用费用。它会保存 Top-1 命中、召回命中和各阶段平均耗时。尚未用真实人工题集运行时，不应宣称命中率、引用覆盖率等质量数字。
 
+## 时间与时区
+
+面向用户、数据库记录和结构化日志的业务时间统一使用北京时间（`Asia/Shanghai`）：
+
+- MySQL 的业务时间使用无时区的 `DATETIME` 保存北京时间墙上时间；API 响应和 JSON 日志会以 ISO 8601 的 `+08:00` 偏移明确标识，例如 `2026-08-10T12:00:00+08:00`。
+- `20260810_0008` Alembic 迁移会将迁移前按 UTC 写入的既有 `DATETIME` 值整体加 8 小时，并把 MySQL 后续默认值改为 `UTC_TIMESTAMP() + INTERVAL 8 HOUR`。该数据迁移不可安全自动回退；生产升级前应先备份数据库。
+- SQLAlchemy 新建或更新业务记录使用北京时间默认值；MySQL 连接也会设置为 `+08:00`，避免直接 SQL 的 `CURRENT_TIMESTAMP` 偏离。
+- JWT 的 `iat`、`exp` 仍采用标准 UTC/Unix 安全语义；它们是令牌校验内部数据，不属于 API 向用户展示的业务时间。
+
 ## Docker 与 CI
 
 容器环境使用 MySQL 8 和应用两个服务。首次运行可由脚本从本地 `.env` 读取模型连接配置，并为容器数据库、JWT 与管理员生成独立随机凭据；生成的 `.env.docker` 始终只保留在本机：

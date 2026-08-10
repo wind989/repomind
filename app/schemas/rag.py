@@ -1,6 +1,6 @@
-from datetime import datetime
-
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from app.schemas.timezone import BeijingDateTime
 
 
 class AskRequest(BaseModel):
@@ -60,8 +60,8 @@ class FeedbackRead(BaseModel):
     retrieval_log_id: int
     helpful: bool
     comment: str | None
-    created_at: datetime
-    updated_at: datetime
+    created_at: BeijingDateTime
+    updated_at: BeijingDateTime
 
 
 class RetrievalCandidateRead(BaseModel):
@@ -95,7 +95,7 @@ class RetrievalLogRead(BaseModel):
     fusion_latency_ms: int
     rerank_latency_ms: int
     latency_ms: int
-    created_at: datetime
+    created_at: BeijingDateTime
     citations: list[CitationRead]
     candidates: list[RetrievalCandidateRead]
     feedback: FeedbackRead | None

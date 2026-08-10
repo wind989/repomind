@@ -1,8 +1,9 @@
 import json
 import logging
 import re
-from datetime import datetime, timezone
 from typing import Any
+
+from app.core.timezone import beijing_isoformat, beijing_now
 
 
 _SECRET_PATTERNS = (
@@ -59,7 +60,7 @@ class JsonFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         payload: dict[str, Any] = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": beijing_isoformat(beijing_now()),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),

@@ -1,4 +1,3 @@
-from datetime import datetime
 import logging
 from pathlib import Path
 from time import perf_counter
@@ -11,6 +10,7 @@ from app.db.session import get_session_factory
 from app.models.document import Document
 from app.models.document_chunk import DocumentChunk
 from app.models.document_processing_task import DocumentProcessingTask
+from app.core.timezone import beijing_now
 from app.services.file_storage import resolve_storage_path
 
 CHUNK_SIZE = 1000
@@ -105,7 +105,7 @@ def process_document_task(
             return
 
         task.status = "running"
-        task.started_at = datetime.utcnow()
+        task.started_at = beijing_now()
         document.processing_status = "processing"
         document.processing_error = None
         db.commit()
@@ -141,11 +141,11 @@ def process_document_task(
             ]
         )
         task.status = "completed"
-        task.completed_at = datetime.utcnow()
+        task.completed_at = beijing_now()
         task.error_message = None
         document.processing_status = "completed"
         document.processing_error = None
-        document.processed_at = datetime.utcnow()
+        document.processed_at = beijing_now()
         db.commit()
         logger.info(
             "document_processing_completed",
@@ -179,7 +179,7 @@ def mark_task_failed(db: Session, task_id: int, error_message: str) -> None:
         return
     document = db.get(Document, task.document_id)
     task.status = "failed"
-    task.completed_at = datetime.utcnow()
+    task.completed_at = beijing_now()
     task.error_message = error_message[:1000]
     if document is not None:
         document.processing_status = "failed"

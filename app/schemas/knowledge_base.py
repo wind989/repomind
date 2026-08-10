@@ -1,6 +1,6 @@
-from datetime import datetime
-
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from app.schemas.timezone import BeijingDateTime
 
 
 class KnowledgeBaseCreate(BaseModel):
@@ -37,5 +37,5 @@ class KnowledgeBaseRead(BaseModel):
     id: int
     name: str
     description: str | None
-    created_at: datetime
-    updated_at: datetime
+    created_at: BeijingDateTime
+    updated_at: BeijingDateTime

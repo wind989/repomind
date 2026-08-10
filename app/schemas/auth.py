@@ -1,6 +1,6 @@
-from datetime import datetime
-
 from pydantic import BaseModel, ConfigDict
+
+from app.schemas.timezone import BeijingDateTime
 
 
 class TokenRead(BaseModel):
@@ -14,4 +14,4 @@ class CurrentUserRead(BaseModel):
     id: int
     username: str
     is_admin: bool
-    created_at: datetime
+    created_at: BeijingDateTime

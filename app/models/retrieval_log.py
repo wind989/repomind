@@ -1,10 +1,11 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+from app.core.timezone import beijing_now
 
 if TYPE_CHECKING:
     from app.models.answer_citation import AnswerCitation
@@ -31,7 +32,7 @@ class RetrievalLog(Base):
     fusion_latency_ms: Mapped[int] = mapped_column(Integer, server_default="0", nullable=False)
     rerank_latency_ms: Mapped[int] = mapped_column(Integer, server_default="0", nullable=False)
     latency_ms: Mapped[int] = mapped_column(Integer, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=beijing_now, nullable=False)
 
     knowledge_base: Mapped["KnowledgeBase"] = relationship(back_populates="retrieval_logs")
     citations: Mapped[list["AnswerCitation"]] = relationship(

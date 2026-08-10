@@ -1,7 +1,7 @@
 from collections.abc import Generator
 
 from fastapi import HTTPException, status
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -27,8 +27,22 @@ def get_engine() -> Engine:
         engine_kwargs["pool_recycle"] = 3600
 
     _engine = create_engine(database_url, **engine_kwargs)
+    if _engine.dialect.name == "mysql":
+        _configure_mysql_beijing_timezone(_engine)
     _session_factory = sessionmaker(autocommit=False, autoflush=False, bind=_engine)
     return _engine
+
+
+def _configure_mysql_beijing_timezone(engine: Engine) -> None:
+    """Keep MySQL session functions such as CURRENT_TIMESTAMP in Asia/Shanghai."""
+
+    @event.listens_for(engine, "connect")
+    def set_mysql_timezone(dbapi_connection, _connection_record) -> None:
+        cursor = dbapi_connection.cursor()
+        try:
+            cursor.execute("SET time_zone = '+08:00'")
+        finally:
+            cursor.close()
 
 
 def get_session_factory() -> sessionmaker[Session]:

@@ -1,7 +1,8 @@
-from datetime import datetime
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict
+
+from app.schemas.timezone import BeijingDateTime
 
 
 class DocumentProcessingTaskOperation(str, Enum):
@@ -24,9 +25,9 @@ class DocumentProcessingTaskRead(BaseModel):
     operation: DocumentProcessingTaskOperation
     status: DocumentProcessingTaskStatus
     error_message: str | None
-    created_at: datetime
-    started_at: datetime | None
-    completed_at: datetime | None
+    created_at: BeijingDateTime
+    started_at: BeijingDateTime | None
+    completed_at: BeijingDateTime | None
 
 
 class DocumentChunkRead(BaseModel):
@@ -38,4 +39,4 @@ class DocumentChunkRead(BaseModel):
     content: str
     char_start: int
     char_end: int
-    created_at: datetime
+    created_at: BeijingDateTime

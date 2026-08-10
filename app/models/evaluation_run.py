@@ -1,10 +1,11 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, func
+from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+from app.core.timezone import beijing_now
 
 if TYPE_CHECKING:
     from app.models.evaluation_case_result import EvaluationCaseResult
@@ -28,7 +29,7 @@ class EvaluationRun(Base):
     average_vector_latency_ms: Mapped[int] = mapped_column(Integer, nullable=False)
     average_fusion_latency_ms: Mapped[int] = mapped_column(Integer, nullable=False)
     average_rerank_latency_ms: Mapped[int] = mapped_column(Integer, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=beijing_now, nullable=False)
 
     knowledge_base: Mapped["KnowledgeBase"] = relationship(back_populates="evaluation_runs")
     results: Mapped[list["EvaluationCaseResult"]] = relationship(

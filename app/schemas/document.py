@@ -1,7 +1,8 @@
-from datetime import datetime
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from app.schemas.timezone import BeijingDateTime
 
 
 class DocumentSourceType(str, Enum):
@@ -76,6 +77,6 @@ class DocumentRead(BaseModel):
     file_size: int | None
     processing_status: DocumentProcessingStatus
     processing_error: str | None
-    processed_at: datetime | None
-    created_at: datetime
-    updated_at: datetime
+    processed_at: BeijingDateTime | None
+    created_at: BeijingDateTime
+    updated_at: BeijingDateTime
