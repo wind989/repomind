@@ -18,7 +18,7 @@ RepoMind 是面向后端项目文档的知识库服务。它将分散的 README�
 
 当前版本已完成 P0–P5：文档处理、混合检索、问答闭环、JWT 认证与工程化交付。项目的功能边界、技术选择和简历表述均以实际运行与测试证据为准。
 
-详细图示见 [架构与数据流](docs/architecture.md)；用于面试讲解的精简版本见 [面试项目流程图](docs/interview_project_flow.md)。
+详细图示见 [架构与数据流](docs/architecture.md)。
 
 ## 解决的问题
 
