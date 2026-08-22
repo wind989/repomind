@@ -52,3 +52,19 @@
 3. 执行上述评测命令；系统会在 MySQL 中保存新的评测运行和逐题结果。
 
 题集为人工编写、单一预期文档标注，未使用真实用户会话。当前 Ragas 只使用 ID-based Context Precision/Recall 做文档级上下文评测，未调用评测模型，也未评测引用充分性、Faithfulness 或 DeepSeek 最终答案。因此，简历与 README 只能陈述本报告中的固定公开语料结果，不能外推为生产准确率。
+
+## 可选的回答质量评测
+
+回答层评测与本报告的无模型检索基线分开。`scripts/evaluate_ragas_answers.py` 接收已完成的问答样本：
+
+```json
+{
+  "case_key": "case-1",
+  "user_input": "用户问题",
+  "retrieved_contexts": ["检索到的文档片段"],
+  "response": "系统回答",
+  "reference": "人工参考答案"
+}
+```
+
+显式添加 `--allow-model-calls` 后，脚本可运行 Faithfulness；补齐每题 `reference` 并添加 `--factual-correctness` 后可运行 Factual Correctness；添加 `--answer-relevancy` 会使用 Chroma 的本地向量函数。它们会调用评测模型或本地向量模型，不属于默认评测、CI 或本报告的已验证数字。当前项目只在真实题集实际运行后，才允许在简历中填写回答层指标。

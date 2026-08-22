@@ -105,6 +105,19 @@ FastAPI、Pydantic、SQLAlchemy 2、Alembic、MySQL 8、Chroma 本地持久化�
 
 评测只运行检索与重排序，不调用 DeepSeek，不产生模型调用费用。它会保存 Top-1、Recall@K、MRR、Ragas 文档级 ID-based Context Precision/Recall 和各阶段平均耗时。这里的 Ragas 指标把预期文档标题作为参考上下文 ID，衡量文档级上下文命中与排序；它不等同于 Faithfulness、Answer Relevancy 等需要评测模型的端到端回答指标。尚未用真实人工题集运行时，不应宣称命中率、引用覆盖率等质量数字。
 
+### 可选的回答质量评测
+
+如果要评测“生成的回答是否有依据、是否回答了问题”，可以准备一份包含 `user_input`、`retrieved_contexts`、`response` 的题集；要评测 Factual Correctness，还需要为每道题补充 `reference`。仓库提供了 [回答质量题集示例](evaluation_sets/answer_quality.example.json) 和显式 opt-in 脚本：
+
+```powershell
+.venv\Scripts\python.exe scripts\evaluate_ragas_answers.py `
+  --cases evaluation_sets\answer_quality.example.json `
+  --allow-model-calls `
+  --factual-correctness
+```
+
+该脚本默认不会运行；只有显式追加 `--allow-model-calls` 才会调用当前配置的 DeepSeek 作为评测模型。`Faithfulness` 衡量回答是否能被检索上下文支持；`Factual Correctness` 需要人工参考答案；`--answer-relevancy` 会额外初始化项目已有的 Chroma 本地向量函数，因此也只建议在本地演示时显式开启。当前仓库没有把示例题集结果当作项目质量数字，也没有把这条模型调用链放入 CI。
+
 ## 时间与时区
 
 面向用户、数据库记录和结构化日志的业务时间统一使用北京时间（`Asia/Shanghai`）：
@@ -128,7 +141,7 @@ docker compose --env-file .env.docker up --build -d
 
 ## 验证状态与限制
 
-- 已在本机通过：21 项隔离 pytest 测试（通过 fake 依赖）。
+- 已在本机通过：26 项隔离 pytest 测试（通过 fake 依赖）。
 - Docker：`docker compose config --quiet` 已通过；MySQL 与应用容器已实际启动且为 healthy，`/health`、`/ready`、JWT 登录及受保护接口均已验证。
 - GitHub Actions：首次远程工作流已成功运行，执行隔离测试与依赖检查。
 - 当前为本地/受信任演示部署，使用 JWT 保护业务接口，并由本地 bootstrap 管理员初始化。尚未实现注册、用户管理、多用户角色或细粒度权限控制。

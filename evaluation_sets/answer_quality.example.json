@@ -1,0 +1,14 @@
+{
+  "dataset_name": "answer_quality_demo_replace_with_real_samples",
+  "samples": [
+    {
+      "case_key": "order-create-parameters",
+      "user_input": "创建订单需要哪些参数？",
+      "retrieved_contexts": [
+        "创建订单需要商品编号、数量和收货地址。"
+      ],
+      "response": "创建订单需要商品编号、数量和收货地址。",
+      "reference": "创建订单需要商品编号、数量和收货地址。"
+    }
+  ]
+}
