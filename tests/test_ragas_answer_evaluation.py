@@ -107,8 +107,9 @@ def test_answer_evaluation_maps_opt_in_metric_scores(monkeypatch) -> None:
             return self.values_by_name[self.metric_name].pop(0)
 
     class FakeResponseRelevancy(FakeMetric):
-        def __init__(self, llm, embeddings) -> None:
+        def __init__(self, llm, embeddings, strictness) -> None:
             self.metric_name = "answer_relevancy"
+            assert strictness == 1
 
         def single_turn_score(self, sample) -> float:
             return self.values_by_name[self.metric_name].pop(0)

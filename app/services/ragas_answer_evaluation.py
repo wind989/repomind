@@ -94,7 +94,18 @@ def evaluate_answer_quality(
 
     metrics: list[Any] = [Faithfulness(llm=evaluator_llm)]
     if include_answer_relevancy:
-        metrics.append(ResponseRelevancy(llm=evaluator_llm, embeddings=evaluator_embeddings))
+        # DeepSeek's OpenAI-compatible endpoint currently accepts only one
+        # completion per request.  Ragas defaults ``strictness`` to 3 for
+        # ResponseRelevancy, which sends ``n=3`` and is rejected with HTTP
+        # 400.  A single generated question keeps this opt-in metric
+        # compatible with DeepSeek while retaining its normal score path.
+        metrics.append(
+            ResponseRelevancy(
+                llm=evaluator_llm,
+                embeddings=evaluator_embeddings,
+                strictness=1,
+            )
+        )
     if include_factual_correctness:
         metrics.append(FactualCorrectness(llm=evaluator_llm))
 
