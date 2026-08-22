@@ -27,6 +27,7 @@ class EvaluationCaseResult(Base):
     top1_document_title: Mapped[str | None] = mapped_column(String(200), nullable=True)
     top1_hit: Mapped[bool] = mapped_column(Boolean, nullable=False)
     recall_hit: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    expected_rank: Mapped[int | None] = mapped_column(Integer, nullable=True)
     retrieved_count: Mapped[int] = mapped_column(Integer, nullable=False)
     candidate_titles_json: Mapped[str] = mapped_column(Text, nullable=False)
 

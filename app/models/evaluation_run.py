@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -25,6 +25,8 @@ class EvaluationRun(Base):
     total_cases: Mapped[int] = mapped_column(Integer, nullable=False)
     top1_hit_count: Mapped[int] = mapped_column(Integer, nullable=False)
     recall_hit_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    # Nullable keeps evaluation runs created before the MRR migration honest.
+    mrr: Mapped[float | None] = mapped_column(Float, nullable=True)
     average_keyword_latency_ms: Mapped[int] = mapped_column(Integer, nullable=False)
     average_vector_latency_ms: Mapped[int] = mapped_column(Integer, nullable=False)
     average_fusion_latency_ms: Mapped[int] = mapped_column(Integer, nullable=False)

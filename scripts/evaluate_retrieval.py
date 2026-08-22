@@ -61,6 +61,7 @@ def main() -> None:
             "total_cases": evaluation_run.total_cases,
             "top1_hit_count": evaluation_run.top1_hit_count,
             "recall_hit_count": evaluation_run.recall_hit_count,
+            "mrr": evaluation_run.mrr,
         }
 
     print(json.dumps(summary, ensure_ascii=False))

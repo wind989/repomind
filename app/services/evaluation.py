@@ -40,15 +40,25 @@ def evaluate_retrieval_cases(
     results: list[EvaluationCaseResult] = []
     top1_hit_count = 0
     recall_hit_count = 0
+    reciprocal_ranks: list[float] = []
 
     for case in cases:
         retrieval = hybrid_retrieve(db, knowledge_base_id, case.question, vector_store, recall_k)
         candidate_titles = [candidate.document_title for candidate in retrieval.candidates]
         top1_document_title = candidate_titles[0] if candidate_titles else None
         top1_hit = top1_document_title == case.expected_document_title
-        recall_hit = case.expected_document_title in candidate_titles
+        expected_rank = next(
+            (
+                rank
+                for rank, title in enumerate(candidate_titles, start=1)
+                if title == case.expected_document_title
+            ),
+            None,
+        )
+        recall_hit = expected_rank is not None and expected_rank <= recall_k
         top1_hit_count += int(top1_hit)
         recall_hit_count += int(recall_hit)
+        reciprocal_ranks.append(1 / expected_rank if expected_rank is not None else 0.0)
         keyword_latencies.append(retrieval.keyword_latency_ms)
         vector_latencies.append(retrieval.vector_latency_ms)
         fusion_latencies.append(retrieval.fusion_latency_ms)
@@ -61,6 +71,7 @@ def evaluate_retrieval_cases(
                 top1_document_title=top1_document_title,
                 top1_hit=top1_hit,
                 recall_hit=recall_hit,
+                expected_rank=expected_rank,
                 retrieved_count=len(retrieval.candidates),
                 candidate_titles_json=json.dumps(candidate_titles, ensure_ascii=False),
             )
@@ -73,6 +84,7 @@ def evaluate_retrieval_cases(
         total_cases=total_cases,
         top1_hit_count=top1_hit_count,
         recall_hit_count=recall_hit_count,
+        mrr=round(sum(reciprocal_ranks) / total_cases, 4),
         average_keyword_latency_ms=round(sum(keyword_latencies) / total_cases),
         average_vector_latency_ms=round(sum(vector_latencies) / total_cases),
         average_fusion_latency_ms=round(sum(fusion_latencies) / total_cases),
