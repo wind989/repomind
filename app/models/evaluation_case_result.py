@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -28,6 +28,8 @@ class EvaluationCaseResult(Base):
     top1_hit: Mapped[bool] = mapped_column(Boolean, nullable=False)
     recall_hit: Mapped[bool] = mapped_column(Boolean, nullable=False)
     expected_rank: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    ragas_context_precision: Mapped[float | None] = mapped_column(Float, nullable=True)
+    ragas_context_recall: Mapped[float | None] = mapped_column(Float, nullable=True)
     retrieved_count: Mapped[int] = mapped_column(Integer, nullable=False)
     candidate_titles_json: Mapped[str] = mapped_column(Text, nullable=False)
 

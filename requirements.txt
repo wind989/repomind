@@ -14,3 +14,10 @@ openai==2.53.0
 PyJWT==2.13.0
 pwdlib[argon2]==0.3.0
 tzdata==2025.2
+ragas==0.4.3
+# Ragas 0.4.3 currently imports the VertexAI compatibility module from the
+# LangChain 0.3 line; pin the compatible stack for reproducible CI installs.
+langchain==0.3.27
+langchain-core==0.3.80
+langchain-community==0.3.31
+langchain-openai==0.3.35

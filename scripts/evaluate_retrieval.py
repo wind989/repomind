@@ -1,4 +1,4 @@
-"""Run a manually annotated retrieval evaluation set without calling an LLM."""
+"""Run retrieval and Ragas document-context evaluation without calling an LLM."""
 
 from __future__ import annotations
 
@@ -39,7 +39,7 @@ def load_cases(path: Path) -> tuple[str, int, list[EvaluationCase]]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="运行 RepoMind 检索评测题集")
+    parser = argparse.ArgumentParser(description="运行 RepoMind 检索与 Ragas 上下文评测题集")
     parser.add_argument("--cases", type=Path, required=True, help="人工标注题集 JSON 文件")
     arguments = parser.parse_args()
 
@@ -62,6 +62,8 @@ def main() -> None:
             "top1_hit_count": evaluation_run.top1_hit_count,
             "recall_hit_count": evaluation_run.recall_hit_count,
             "mrr": evaluation_run.mrr,
+            "ragas_context_precision": evaluation_run.ragas_context_precision,
+            "ragas_context_recall": evaluation_run.ragas_context_recall,
         }
 
     print(json.dumps(summary, ensure_ascii=False))

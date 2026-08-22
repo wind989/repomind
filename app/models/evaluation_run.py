@@ -27,6 +27,10 @@ class EvaluationRun(Base):
     recall_hit_count: Mapped[int] = mapped_column(Integer, nullable=False)
     # Nullable keeps evaluation runs created before the MRR migration honest.
     mrr: Mapped[float | None] = mapped_column(Float, nullable=True)
+    # Ragas ID-based context metrics are nullable for runs created before the
+    # Ragas migration or for intentionally retrieval-only legacy records.
+    ragas_context_precision: Mapped[float | None] = mapped_column(Float, nullable=True)
+    ragas_context_recall: Mapped[float | None] = mapped_column(Float, nullable=True)
     average_keyword_latency_ms: Mapped[int] = mapped_column(Integer, nullable=False)
     average_vector_latency_ms: Mapped[int] = mapped_column(Integer, nullable=False)
     average_fusion_latency_ms: Mapped[int] = mapped_column(Integer, nullable=False)

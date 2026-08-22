@@ -14,7 +14,7 @@
 
 RepoMind 是面向后端项目文档的知识库服务。它将分散的 README、接口说明、部署文档等资料变成可管理、可检索、可追溯的问答数据源，降低新人熟悉项目、定位接口规则和复核回答依据的成本。
 
-已完成一次固定公开语料的真实检索评测：7 份 MIT 许可的 FastAPI 模板文档、210 个索引片段、15 条人工标注问题，Top-1 命中 11/15（73.3%）、Recall@8 命中 15/15（100%）、MRR 0.8556。完整来源、方法与限制见 [评测报告](docs/evaluation_report.md)；这些指标仅衡量该固定语料上的检索与排序，不是生产数据或通用能力结论。
+已完成一次固定公开语料的真实检索评测：7 份 MIT 许可的 FastAPI 模板文档、210 个索引片段、15 条人工标注问题，Top-1 命中 11/15（73.3%）、Recall@8 命中 15/15（100%）、MRR 0.8556；同时用 Ragas 的文档级 ID-based Context Precision/Recall 得到 0.2578/1.0000。完整来源、方法与限制见 [评测报告](docs/evaluation_report.md)；这些指标仅衡量该固定语料上的检索与上下文排序，不是生产数据或通用能力结论。
 
 当前版本已完成 P0–P5：文档处理、混合检索、问答闭环、JWT 认证与工程化交付。项目的功能边界、技术选择和简历表述均以实际运行与测试证据为准。
 
@@ -26,12 +26,12 @@ RepoMind 是面向后端项目文档的知识库服务。它将分散的 README�
 | --- | --- |
 | 项目文档分散，靠关键词难以定位上下文 | 以知识库、文档、分段三层管理资料，并建立关键词与向量索引 |
 | 回答无法说明依据 | 返回文档片段引用，并保存候选、得分、耗时与问答记录 |
-| 检索结果难复盘、难评测 | 保存关键词/向量候选、RRF 融合和确定性重排序结果；支持人工题集评测 |
+| 检索结果难复盘、难评测 | 保存关键词/向量候选、RRF 融合和确定性重排序结果；支持人工题集评测与 Ragas 上下文指标 |
 | 线上问题难观察 | 请求使用脱敏结构化日志；问答记录保留检索阶段耗时；支持匿名有用/无用反馈 |
 
 ## 当前技术栈
 
-FastAPI、Pydantic、SQLAlchemy 2、Alembic、MySQL 8、Chroma 本地持久化向量库、DeepSeek OpenAI 兼容 API（`deepseek-v4-flash`）、pytest + HTTPX。容器与 CI 配置已纳入仓库，但是否已在目标环境运行要以本 README 的“验证状态”为准。
+FastAPI、Pydantic、SQLAlchemy 2、Alembic、MySQL 8、Chroma 本地持久化向量库、DeepSeek OpenAI 兼容 API（`deepseek-v4-flash`）、Ragas 0.4.3、pytest + HTTPX。容器与 CI 配置已纳入仓库，但是否已在目标环境运行要以本 README 的“验证状态”为准。
 
 ## 已实现功能
 
@@ -103,7 +103,7 @@ FastAPI、Pydantic、SQLAlchemy 2、Alembic、MySQL 8、Chroma 本地持久化�
 .venv\Scripts\python.exe scripts\evaluate_retrieval.py --cases 你的题集.json
 ```
 
-评测只运行检索与重排序，不调用 DeepSeek，不产生模型调用费用。它会保存 Top-1 命中、Recall@K、MRR 和各阶段平均耗时。尚未用真实人工题集运行时，不应宣称命中率、引用覆盖率等质量数字。
+评测只运行检索与重排序，不调用 DeepSeek，不产生模型调用费用。它会保存 Top-1、Recall@K、MRR、Ragas 文档级 ID-based Context Precision/Recall 和各阶段平均耗时。这里的 Ragas 指标把预期文档标题作为参考上下文 ID，衡量文档级上下文命中与排序；它不等同于 Faithfulness、Answer Relevancy 等需要评测模型的端到端回答指标。尚未用真实人工题集运行时，不应宣称命中率、引用覆盖率等质量数字。
 
 ## 时间与时区
 
@@ -128,7 +128,7 @@ docker compose --env-file .env.docker up --build -d
 
 ## 验证状态与限制
 
-- 已在本机通过：18 项隔离 pytest 测试（通过 fake 依赖）。
+- 已在本机通过：21 项隔离 pytest 测试（通过 fake 依赖）。
 - Docker：`docker compose config --quiet` 已通过；MySQL 与应用容器已实际启动且为 healthy，`/health`、`/ready`、JWT 登录及受保护接口均已验证。
 - GitHub Actions：首次远程工作流已成功运行，执行隔离测试与依赖检查。
 - 当前为本地/受信任演示部署，使用 JWT 保护业务接口，并由本地 bootstrap 管理员初始化。尚未实现注册、用户管理、多用户角色或细粒度权限控制。

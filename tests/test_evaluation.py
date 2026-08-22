@@ -49,11 +49,17 @@ def test_evaluation_run_persists_retrieval_metrics(client, test_db) -> None:
     assert evaluation_run.top1_hit_count == 1
     assert evaluation_run.recall_hit_count == 1
     assert evaluation_run.mrr == 1.0
+    assert evaluation_run.ragas_context_precision == 1.0
+    assert evaluation_run.ragas_context_recall == 1.0
     assert len(evaluation_run.results) == 1
     assert evaluation_run.results[0].expected_rank == 1
+    assert evaluation_run.results[0].ragas_context_precision == 1.0
+    assert evaluation_run.results[0].ragas_context_recall == 1.0
     assert evaluation_run.results[0].candidate_titles_json == '["订单服务接口说明"]'
 
     response = client.get(f"/evaluation-runs/{evaluation_run.id}")
     assert response.status_code == 200
     assert response.json()["top1_hit_count"] == 1
     assert response.json()["mrr"] == 1.0
+    assert response.json()["ragas_context_precision"] == 1.0
+    assert response.json()["ragas_context_recall"] == 1.0

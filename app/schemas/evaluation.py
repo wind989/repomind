@@ -14,6 +14,8 @@ class EvaluationCaseResultRead(BaseModel):
     top1_hit: bool
     recall_hit: bool
     expected_rank: int | None
+    ragas_context_precision: float | None
+    ragas_context_recall: float | None
     retrieved_count: int
     candidate_titles_json: str
 
@@ -28,6 +30,8 @@ class EvaluationRunRead(BaseModel):
     top1_hit_count: int
     recall_hit_count: int
     mrr: float | None
+    ragas_context_precision: float | None
+    ragas_context_recall: float | None
     average_keyword_latency_ms: int
     average_vector_latency_ms: int
     average_fusion_latency_ms: int

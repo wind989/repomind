@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.models.evaluation_case_result import EvaluationCaseResult
 from app.models.evaluation_run import EvaluationRun
 from app.models.knowledge_base import KnowledgeBase
+from app.services.ragas_evaluation import evaluate_document_contexts
 from app.services.rag import VectorStore, hybrid_retrieve
 
 
@@ -41,6 +42,7 @@ def evaluate_retrieval_cases(
     top1_hit_count = 0
     recall_hit_count = 0
     reciprocal_ranks: list[float] = []
+    ragas_samples: list[tuple[str, list[str], str]] = []
 
     for case in cases:
         retrieval = hybrid_retrieve(db, knowledge_base_id, case.question, vector_store, recall_k)
@@ -59,6 +61,13 @@ def evaluate_retrieval_cases(
         top1_hit_count += int(top1_hit)
         recall_hit_count += int(recall_hit)
         reciprocal_ranks.append(1 / expected_rank if expected_rank is not None else 0.0)
+        ragas_samples.append(
+            (
+                case.question,
+                list(dict.fromkeys(candidate_titles)),
+                case.expected_document_title,
+            )
+        )
         keyword_latencies.append(retrieval.keyword_latency_ms)
         vector_latencies.append(retrieval.vector_latency_ms)
         fusion_latencies.append(retrieval.fusion_latency_ms)
@@ -77,6 +86,15 @@ def evaluate_retrieval_cases(
             )
         )
 
+    ragas_evaluation = evaluate_document_contexts(ragas_samples)
+    for result, precision, recall in zip(
+        results,
+        ragas_evaluation.precision_scores,
+        ragas_evaluation.recall_scores,
+    ):
+        result.ragas_context_precision = precision
+        result.ragas_context_recall = recall
+
     total_cases = len(cases)
     evaluation_run = EvaluationRun(
         knowledge_base_id=knowledge_base_id,
@@ -85,6 +103,8 @@ def evaluate_retrieval_cases(
         top1_hit_count=top1_hit_count,
         recall_hit_count=recall_hit_count,
         mrr=round(sum(reciprocal_ranks) / total_cases, 4),
+        ragas_context_precision=ragas_evaluation.average_precision,
+        ragas_context_recall=ragas_evaluation.average_recall,
         average_keyword_latency_ms=round(sum(keyword_latencies) / total_cases),
         average_vector_latency_ms=round(sum(vector_latencies) / total_cases),
         average_fusion_latency_ms=round(sum(fusion_latencies) / total_cases),
