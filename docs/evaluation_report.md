@@ -29,7 +29,7 @@
 
 | 指标 | 结果 |
 | --- | --- |
-| 评测运行 ID | 5 |
+| 评测运行 ID（当前 Docker 数据库） | 1 |
 | Top-1 命中 | 11 / 15（73.3%） |
 | Recall@8 命中 | 15 / 15（100%） |
 | MRR | 0.8556 |
@@ -46,16 +46,28 @@
    ```powershell
    git clone https://github.com/fastapi/full-stack-fastapi-template.git D:\source-cache\fastapi-template
    git -C D:\source-cache\fastapi-template checkout 75c388ba1cd60f39b43dd63a73978bae8c69cb87
-   .venv\Scripts\python.exe scripts\import_fastapi_template_corpus.py --source-dir D:\source-cache\fastapi-template --cases-output evaluation_sets\fastapi_template_public_docs.json
+   .venv\Scripts\python.exe scripts\import_fastapi_template_corpus.py --source-dir D:\source-cache\fastapi-template --cases-output evaluation_sets\fastapi_template_public_docs.json --env-file .env.docker
    ```
 
 3. 执行上述评测命令；系统会在 MySQL 中保存新的评测运行和逐题结果。
 
-题集为人工编写、单一预期文档标注，未使用真实用户会话。当前 Ragas 只使用 ID-based Context Precision/Recall 做文档级上下文评测，未调用评测模型，也未评测引用充分性、Faithfulness 或 DeepSeek 最终答案。因此，简历与 README 只能陈述本报告中的固定公开语料结果，不能外推为生产准确率。
+题集为人工编写、单一预期文档标注，未使用真实业务用户会话。它适合做固定版本上的可复现检索回归，不代表生产业务准确率。
 
-## 可选的回答质量评测
+## 回答质量评测（已实际运行）
 
-回答层评测与本报告的无模型检索基线分开。`scripts/evaluate_ragas_answers.py` 接收已完成的问答样本：
+回答层评测与上面的无模型检索基线分开。我们先用当前已导入并完成索引的 7 份公开文档，实际调用 RepoMind `/ask` 生成 15 条问答样本，再由人工根据同一批公开文档补充参考答案。样本文件为 `evaluation_sets/answer_quality.fastapi_public.json`，参考答案原始映射保存在 `evaluation_sets/answer_quality.fastapi_public.references.json`。
+
+生成真实问答样本的命令如下（需要本地 Docker 服务已启动；凭据只从本地环境文件读取，不写入仓库）：
+
+```powershell
+.venv\Scripts\python.exe scripts\build_answer_quality_cases.py `
+  --retrieval-cases evaluation_sets\fastapi_template_public_docs.json `
+  --knowledge-base-id <当前导入语料的知识库 ID> `
+  --output evaluation_sets\answer_quality.fastapi_public.json `
+  --env-file .env.docker
+```
+
+`scripts/evaluate_ragas_answers.py` 接收已完成的问答样本：
 
 ```json
 {
@@ -67,4 +79,20 @@
 }
 ```
 
-显式添加 `--allow-model-calls` 后，脚本可运行 Faithfulness；补齐每题 `reference` 并添加 `--factual-correctness` 后可运行 Factual Correctness；添加 `--answer-relevancy` 会使用 Chroma 的本地向量函数。它们会调用评测模型或本地向量模型，不属于默认评测、CI 或本报告的已验证数字。当前项目只在真实题集实际运行后，才允许在简历中填写回答层指标。
+本次实际运行命令为：
+
+```powershell
+.venv\Scripts\python.exe scripts\evaluate_ragas_answers.py `
+  --cases evaluation_sets\answer_quality.fastapi_public.json `
+  --allow-model-calls --answer-relevancy --factual-correctness
+```
+
+本次 15 条样本的聚合结果如下：
+
+| 指标 | 结果 |
+| --- | ---: |
+| Faithfulness | 0.9233 |
+| Answer Relevancy | 0.5624 |
+| Factual Correctness | 0.6287 |
+
+这些指标由 Ragas 使用评测模型（Answer Relevancy 额外使用本地 Chroma 向量模型）计算，会产生模型调用成本和波动；它们衡量的是固定公开语料上的当前回答基线，不是生产业务准确率。简历可以在注明数据集与样本数的前提下引用，不能把它们表述成真实企业项目的线上效果。

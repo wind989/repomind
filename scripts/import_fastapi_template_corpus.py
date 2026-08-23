@@ -13,6 +13,7 @@ import time
 from pathlib import Path
 
 import httpx
+from dotenv import dotenv_values
 
 
 DEFAULT_COMMIT = "75c388ba1cd60f39b43dd63a73978bae8c69cb87"
@@ -151,6 +152,12 @@ def main() -> None:
     parser.add_argument("--base-url", default="http://127.0.0.1:8000")
     parser.add_argument("--commit", default=DEFAULT_COMMIT)
     parser.add_argument("--cases-output", type=Path, required=True)
+    parser.add_argument(
+        "--env-file",
+        type=Path,
+        default=Path(".env"),
+        help="包含 BOOTSTRAP_ADMIN_USERNAME/PASSWORD 的本地环境文件（不会上传或打印）",
+    )
     arguments = parser.parse_args()
 
     source_dir = arguments.source_dir.resolve()
@@ -161,6 +168,22 @@ def main() -> None:
     knowledge_base_name = f"FastAPI Full Stack Template public docs ({arguments.commit[:12]})"
     description = "Public MIT-licensed documentation, imported from a fixed upstream commit for RepoMind evaluation."
     with httpx.Client(base_url=arguments.base_url.rstrip("/"), timeout=60.0) as client:
+        env = dotenv_values(arguments.env_file)
+        username = str(env.get("BOOTSTRAP_ADMIN_USERNAME") or "").strip()
+        password = str(env.get("BOOTSTRAP_ADMIN_PASSWORD") or "").strip()
+        if not username or not password:
+            raise RuntimeError(
+                "导入公开语料需要登录凭据，请在 --env-file 中配置 BOOTSTRAP_ADMIN_USERNAME 和 "
+                "BOOTSTRAP_ADMIN_PASSWORD"
+            )
+        token_response = client.post(
+            "/auth/token",
+            data={"username": username, "password": password},
+        )
+        token_response.raise_for_status()
+        token = token_response.json()["access_token"]
+        client.headers.update({"Authorization": f"Bearer {token}"})
+
         response = client.post(
             "/knowledge-bases",
             json={"name": knowledge_base_name, "description": description},

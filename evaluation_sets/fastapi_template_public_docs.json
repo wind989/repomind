@@ -4,91 +4,91 @@
   "cases": [
     {
       "case_key": "stack-backend-orm-database",
-      "knowledge_base_id": 9,
+      "knowledge_base_id": 1,
       "question": "Which technologies does the template use for the backend API, ORM, and database?",
       "expected_document_title": "FastAPI 模板 / README.md"
     },
     {
       "case_key": "deployment-secrets",
-      "knowledge_base_id": 9,
+      "knowledge_base_id": 1,
       "question": "Which environment values must be changed before deployment?",
       "expected_document_title": "FastAPI 模板 / README.md"
     },
     {
       "case_key": "generate-secret-key",
-      "knowledge_base_id": 9,
+      "knowledge_base_id": 1,
       "question": "What Python command generates a secure secret key?",
       "expected_document_title": "FastAPI 模板 / README.md"
     },
     {
       "case_key": "copier-create-project",
-      "knowledge_base_id": 9,
+      "knowledge_base_id": 1,
       "question": "How can Copier create a new project from the template?",
       "expected_document_title": "FastAPI 模板 / README.md"
     },
     {
       "case_key": "backend-requirements",
-      "knowledge_base_id": 9,
+      "knowledge_base_id": 1,
       "question": "What tools are required for backend development?",
       "expected_document_title": "FastAPI 模板 / backend/README.md"
     },
     {
       "case_key": "backend-dependency-manager",
-      "knowledge_base_id": 9,
+      "knowledge_base_id": 1,
       "question": "Which tool manages the backend Python dependencies?",
       "expected_document_title": "FastAPI 模板 / backend/README.md"
     },
     {
       "case_key": "backend-code-locations",
-      "knowledge_base_id": 9,
+      "knowledge_base_id": 1,
       "question": "Where should models, API endpoints, and CRUD utilities be modified?",
       "expected_document_title": "FastAPI 模板 / backend/README.md"
     },
     {
       "case_key": "backend-test-command",
-      "knowledge_base_id": 9,
+      "knowledge_base_id": 1,
       "question": "How are the backend tests run?",
       "expected_document_title": "FastAPI 模板 / backend/README.md"
     },
     {
       "case_key": "alembic-upgrade",
-      "knowledge_base_id": 9,
+      "knowledge_base_id": 1,
       "question": "What Alembic command applies migrations to the database?",
       "expected_document_title": "FastAPI 模板 / backend/README.md"
     },
     {
       "case_key": "start-local-stack",
-      "knowledge_base_id": 9,
+      "knowledge_base_id": 1,
       "question": "Which command starts the local Docker Compose stack?",
       "expected_document_title": "FastAPI 模板 / development.md"
     },
     {
       "case_key": "local-api-docs-url",
-      "knowledge_base_id": 9,
+      "knowledge_base_id": 1,
       "question": "Where is the local Swagger UI available?",
       "expected_document_title": "FastAPI 模板 / development.md"
     },
     {
       "case_key": "public-env-and-ci",
-      "knowledge_base_id": 9,
+      "knowledge_base_id": 1,
       "question": "How should a public project handle the .env file in CI or deployment?",
       "expected_document_title": "FastAPI 模板 / development.md"
     },
     {
       "case_key": "remote-server-preparation",
-      "knowledge_base_id": 9,
+      "knowledge_base_id": 1,
       "question": "What needs to be prepared on a remote server before deployment?",
       "expected_document_title": "FastAPI 模板 / deployment.md"
     },
     {
       "case_key": "traefik-network",
-      "knowledge_base_id": 9,
+      "knowledge_base_id": 1,
       "question": "What public Docker network name does the Traefik proxy expect?",
       "expected_document_title": "FastAPI 模板 / deployment.md"
     },
     {
       "case_key": "release-fastapi-entrypoint",
-      "knowledge_base_id": 9,
+      "knowledge_base_id": 1,
       "question": "Which latest release feature added a FastAPI entrypoint?",
       "expected_document_title": "FastAPI 模板 / release-notes.md"
     }

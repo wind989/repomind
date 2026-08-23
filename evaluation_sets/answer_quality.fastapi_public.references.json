@@ -1,0 +1,17 @@
+{
+  "stack-backend-orm-database": "The backend API uses FastAPI, SQLModel is used as the ORM for SQL database interactions, and PostgreSQL is the SQL database.",
+  "deployment-secrets": "Before deployment, change at least SECRET_KEY, FIRST_SUPERUSER_PASSWORD, and POSTGRES_PASSWORD, and pass them through environment variables or secrets.",
+  "generate-secret-key": "Run python -c \"import secrets; print(secrets.token_urlsafe(32))\" to generate a secure key, then use the output as a password or secret key.",
+  "copier-create-project": "Install Copier with pip install copier or pipx install copier, then run copier copy https://github.com/fastapi/full-stack-fastapi-template my-awesome-project --trust. The --trust option allows the post-creation script to run.",
+  "backend-requirements": "Backend development requires Docker and uv for Python package and environment management.",
+  "backend-dependency-manager": "The backend Python dependencies are managed with uv; the documented installation command is uv sync from the backend directory.",
+  "backend-code-locations": "Modify SQLModel models in ./backend/app/models.py, API endpoints in ./backend/app/api/, and CRUD utilities in ./backend/app/crud.py.",
+  "backend-test-command": "Run backend tests with bash ./scripts/test.sh. If the stack is already running, docker compose exec backend bash scripts/tests-start.sh can be used instead.",
+  "alembic-upgrade": "Run alembic upgrade head to apply the database migrations.",
+  "start-local-stack": "Run docker compose watch to start the local Docker Compose development stack.",
+  "local-api-docs-url": "The local Swagger UI is available at http://localhost:8000/docs.",
+  "public-env-and-ci": "For a public repository, exclude .env from Git and configure CI/CD to provide the environment variables or secrets. Update compose.yml to read those CI/CD variables instead of relying on the local .env file.",
+  "remote-server-preparation": "Prepare a remote server, configure DNS records, install Docker Engine, and set up the Traefik proxy and its public network before deploying the stack.",
+  "traefik-network": "The Traefik proxy expects a Docker public network named traefik-public.",
+  "release-fastapi-entrypoint": "The Latest Changes feature list includes Use FastAPI entrypoint (PR #2360). The document does not assign that entry to a numbered release version."
+}

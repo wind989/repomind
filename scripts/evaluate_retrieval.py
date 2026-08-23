@@ -16,7 +16,7 @@ from app.services.evaluation import EvaluationCase, evaluate_retrieval_cases
 from app.services.rag import get_vector_store
 
 
-def load_cases(path: Path) -> tuple[str, int, list[EvaluationCase]]:
+def load_cases(path: Path, knowledge_base_id_override: int | None = None) -> tuple[str, int, list[EvaluationCase]]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     dataset_name = str(payload["dataset_name"]).strip()
     recall_k = int(payload.get("recall_k", 8))
@@ -27,7 +27,11 @@ def load_cases(path: Path) -> tuple[str, int, list[EvaluationCase]]:
     cases = [
         EvaluationCase(
             case_key=str(item["case_key"]).strip(),
-            knowledge_base_id=int(item["knowledge_base_id"]),
+            knowledge_base_id=(
+                knowledge_base_id_override
+                if knowledge_base_id_override is not None
+                else int(item["knowledge_base_id"])
+            ),
             question=str(item["question"]).strip(),
             expected_document_title=str(item["expected_document_title"]).strip(),
         )
@@ -41,9 +45,15 @@ def load_cases(path: Path) -> tuple[str, int, list[EvaluationCase]]:
 def main() -> None:
     parser = argparse.ArgumentParser(description="运行 RepoMind 检索与 Ragas 上下文评测题集")
     parser.add_argument("--cases", type=Path, required=True, help="人工标注题集 JSON 文件")
+    parser.add_argument(
+        "--knowledge-base-id",
+        type=int,
+        default=None,
+        help="覆盖题集中的知识库 ID，便于在不同环境复用同一套题集",
+    )
     arguments = parser.parse_args()
 
-    dataset_name, recall_k, cases = load_cases(arguments.cases)
+    dataset_name, recall_k, cases = load_cases(arguments.cases, arguments.knowledge_base_id)
     with get_session_factory()() as db:
         evaluation_run = evaluate_retrieval_cases(
             db,
